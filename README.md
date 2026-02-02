@@ -9,6 +9,7 @@
 - ✅ Leitura/escrita de arquivos
 - ✅ Tratamento de exceções (try-catch)
 - ✅ Conceitos básicos de programação
+- ✅ Básico de SQL 
 
 **O que ainda estou aprendendo:**
 - 🔄 Conceitos avançados de Java (Streams, Lambdas, etc)
