@@ -1,0 +1,11 @@
+CNPJ;RazaoSocial;Trimestre;Ano;ValorDespesas;Observacoes
+11.222.333/0001-44;Assistência Médica Premium;3;2024;0,00;SUSPEITO: Valor zerado
+11.222.333/0001-44;Assistência Médica Premium;2;2024;0,00;SUSPEITO: Valor zerado
+11.222.333/0001-44;Assistência Médica Premium;1;2024;0,00;SUSPEITO: Valor zerado
+12.345.678/0001-90;Operadora Saúde Bem Estar Ltda;3;2024;1500000,50;
+12.345.678/0001-90;Operadora Saúde Bem Estar EIRELI;3;2024;1600000,00;REVISAR: CNPJ duplicado com razão social diferente
+12.345.678/0001-90;Operadora Saúde Bem Estar Ltda;2;2024;1500000,50;
+12.345.678/0001-90;Operadora Saúde Bem Estar Ltda;1;2024;1500000,50;
+98.765.432/0001-10;Plano Saúde Total S.A.;3;2024;-5000,00;SUSPEITO: Valor negativo
+98.765.432/0001-10;Plano Saúde Total S.A.;2;2024;-5000,00;SUSPEITO: Valor negativo
+98.765.432/0001-10;Plano Saúde Total S.A.;1;2024;-5000,00;SUSPEITO: Valor negativo

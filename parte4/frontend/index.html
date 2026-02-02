@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard ANS - Operadoras de Saúde</title>
+    
+    <!-- Vue.js 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- CSS Simples e Limpo -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        /* Cards de Estatísticas */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .stat-card h3 {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        /* Busca */
+        .search-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        /* Tabela */
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #ecf0f1;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #bdc3c7;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+            cursor: pointer;
+        }
+        
+        /* Paginação */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+        }
+        
+        .pagination button {
+            padding: 8px 15px;
+            border: 1px solid #3498db;
+            background: white;
+            color: #3498db;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .pagination button:hover:not(:disabled) {
+            background: #3498db;
+            color: white;
+        }
+        
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .pagination button.active {
+            background: #3498db;
+            color: white;
+        }
+        
+        /* Gráfico */
+        .chart-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Erro */
+        .error {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        /* Modal de detalhes */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .close-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .close-btn:hover {
+            background: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <!-- Cabeçalho -->
+            <header>
+                <h1>📊 Dashboard ANS - Operadoras de Saúde</h1>
+                <p class="subtitle">Sistema de Análise de Despesas com Eventos/Sinistros</p>
+            </header>
+            
+            <!-- Estatísticas Gerais -->
+            <div v-if="estatisticas" class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total de Despesas</h3>
+                    <div class="value">{{ formatarMoeda(estatisticas.resumo.total_despesas) }}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Média de Despesas</h3>
+                    <div class="value">{{ formatarMoeda(estatisticas.resumo.media_despesas) }}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Operadoras Ativas</h3>
+                    <div class="value">{{ estatisticas.resumo.num_operadoras }}</div>
+                </div>
+            </div>
+            
+            <!-- Gráfico de Distribuição por UF -->
+            <div v-if="estatisticas" class="chart-container">
+                <h2 style="margin-bottom: 20px; color: #2c3e50;">Distribuição de Despesas por UF</h2>
+                <canvas id="graficoUF"></canvas>
+            </div>
+            
+            <!-- Busca -->
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    v-model="termoBusca" 
+                    @input="buscarOperadoras"
+                    placeholder="🔍 Buscar por razão social ou CNPJ..."
+                >
+            </div>
+            
+            <!-- Tabela de Operadoras -->
+            <div class="table-container">
+                <div v-if="loading" class="loading">
+                    <div class="spinner"></div>
+                    Carregando dados...
+                </div>
+                
+                <div v-else-if="erro" class="error">
+                    ⚠️ {{ erro }}
+                </div>
+                
+                <div v-else>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>CNPJ</th>
+                                <th>Razão Social</th>
+                                <th>Registro ANS</th>
+                                <th>Modalidade</th>
+                                <th>UF</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="op in operadoras" :key="op.cnpj" @click="verDetalhes(op.cnpj)">
+                                <td>{{ op.cnpj }}</td>
+                                <td>{{ op.razao_social }}</td>
+                                <td>{{ op.registro_ans || '-' }}</td>
+                                <td>{{ op.modalidade || '-' }}</td>
+                                <td>{{ op.uf || '-' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <!-- Paginação -->
+                    <div class="pagination">
+                        <button @click="mudarPagina(1)" :disabled="paginaAtual === 1">
+                            Primeira
+                        </button>
+                        <button @click="mudarPagina(paginaAtual - 1)" :disabled="paginaAtual === 1">
+                            Anterior
+                        </button>
+                        <button class="active">
+                            {{ paginaAtual }} / {{ totalPaginas }}
+                        </button>
+                        <button @click="mudarPagina(paginaAtual + 1)" :disabled="paginaAtual >= totalPaginas">
+                            Próxima
+                        </button>
+                        <button @click="mudarPagina(totalPaginas)" :disabled="paginaAtual >= totalPaginas">
+                            Última
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal de Detalhes -->
+            <div v-if="operadoraSelecionada" class="modal" @click.self="fecharDetalhes">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Detalhes da Operadora</h2>
+                        <button class="close-btn" @click="fecharDetalhes">✕ Fechar</button>
+                    </div>
+                    
+                    <div v-if="loadingDetalhes" class="loading">
+                        <div class="spinner"></div>
+                        Carregando histórico...
+                    </div>
+                    
+                    <div v-else>
+                        <p><strong>CNPJ:</strong> {{ operadoraSelecionada.cnpj }}</p>
+                        <p><strong>Razão Social:</strong> {{ operadoraSelecionada.razao_social }}</p>
+                        
+                        <h3 style="margin-top: 20px; margin-bottom: 10px;">Histórico de Despesas</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Período</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="desp in operadoraSelecionada.despesas" :key="`${desp.ano}-${desp.trimestre}`">
+                                    <td>{{ desp.trimestre }}º Tri / {{ desp.ano }}</td>
+                                    <td>{{ formatarMoeda(desp.valor) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    // URL base da API (ajustar se necessário)
+                    apiUrl: 'http://localhost:5000/api',
+                    
+                    // Dados
+                    operadoras: [],
+                    estatisticas: null,
+                    operadoraSelecionada: null,
+                    
+                    // Paginação
+                    paginaAtual: 1,
+                    totalPaginas: 1,
+                    registrosPorPagina: 10,
+                    
+                    // Busca
+                    termoBusca: '',
+                    timeoutBusca: null,
+                    
+                    // Estados
+                    loading: false,
+                    loadingDetalhes: false,
+                    erro: null,
+                    
+                    // Gráfico
+                    grafico: null
+                }
+            },
+            
+            mounted() {
+                // Carrega dados iniciais
+                this.carregarOperadoras();
+                this.carregarEstatisticas();
+            },
+            
+            methods: {
+                /**
+                 * Carrega lista de operadoras com paginação
+                 * 
+                 * TRADE-OFF: Busca no servidor vs busca no cliente
+                 * - Decisão: Busca no servidor
+                 * - PRÓS: Funciona bem com grandes volumes, não precisa carregar tudo
+                 * - CONTRAS: Cada busca faz uma requisição
+                 * - JUSTIFICATIVA: Escala melhor, especialmente para muitas operadoras
+                 */
+                async carregarOperadoras() {
+                    this.loading = true;
+                    this.erro = null;
+                    
+                    try {
+                        const params = new URLSearchParams({
+                            page: this.paginaAtual,
+                            limit: this.registrosPorPagina
+                        });
+                        
+                        if (this.termoBusca) {
+                            params.append('busca', this.termoBusca);
+                        }
+                        
+                        const response = await fetch(`${this.apiUrl}/operadoras?${params}`);
+                        
+                        if (!response.ok) {
+                            throw new Error('Erro ao carregar operadoras');
+                        }
+                        
+                        const data = await response.json();
+                        
+                        this.operadoras = data.data;
+                        this.totalPaginas = data.total_pages;
+                        
+                    } catch (error) {
+                        console.error('Erro:', error);
+                        this.erro = 'Não foi possível carregar as operadoras. Verifique se a API está rodando.';
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                
+                /**
+                 * Carrega estatísticas agregadas
+                 */
+                async carregarEstatisticas() {
+                    try {
+                        const response = await fetch(`${this.apiUrl}/estatisticas`);
+                        
+                        if (!response.ok) {
+                            throw new Error('Erro ao carregar estatísticas');
+                        }
+                        
+                        this.estatisticas = await response.json();
+                        
+                        // Aguarda próximo tick do Vue e cria gráfico
+                        this.$nextTick(() => {
+                            this.criarGrafico();
+                        });
+                        
+                    } catch (error) {
+                        console.error('Erro ao carregar estatísticas:', error);
+                    }
+                },
+                
+                /**
+                 * Cria gráfico de distribuição por UF
+                 */
+                criarGrafico() {
+                    if (this.grafico) {
+                        this.grafico.destroy();
+                    }
+                    
+                    const ctx = document.getElementById('graficoUF');
+                    if (!ctx) return;
+                    
+                    const dados = this.estatisticas.distribuicao_uf;
+                    
+                    this.grafico = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: dados.map(d => d.uf),
+                            datasets: [{
+                                label: 'Total de Despesas (R$)',
+                                data: dados.map(d => d.total_despesas),
+                                backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                                borderColor: 'rgba(52, 152, 219, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return 'R$ ' + value.toLocaleString('pt-BR');
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                },
+                
+                /**
+                 * Busca operadoras com debounce
+                 */
+                buscarOperadoras() {
+                    // Limpa timeout anterior
+                    if (this.timeoutBusca) {
+                        clearTimeout(this.timeoutBusca);
+                    }
+                    
+                    // Aguarda 500ms após parar de digitar
+                    this.timeoutBusca = setTimeout(() => {
+                        this.paginaAtual = 1; // Volta para primeira página
+                        this.carregarOperadoras();
+                    }, 500);
+                },
+                
+                /**
+                 * Muda página da tabela
+                 */
+                mudarPagina(novaPagina) {
+                    if (novaPagina >= 1 && novaPagina <= this.totalPaginas) {
+                        this.paginaAtual = novaPagina;
+                        this.carregarOperadoras();
+                    }
+                },
+                
+                /**
+                 * Abre modal com detalhes da operadora
+                 */
+                async verDetalhes(cnpj) {
+                    this.loadingDetalhes = true;
+                    this.operadoraSelecionada = { cnpj };
+                    
+                    try {
+                        const response = await fetch(`${this.apiUrl}/operadoras/${cnpj}/despesas`);
+                        
+                        if (!response.ok) {
+                            throw new Error('Erro ao carregar detalhes');
+                        }
+                        
+                        this.operadoraSelecionada = await response.json();
+                        
+                    } catch (error) {
+                        console.error('Erro:', error);
+                        alert('Erro ao carregar detalhes da operadora');
+                        this.operadoraSelecionada = null;
+                    } finally {
+                        this.loadingDetalhes = false;
+                    }
+                },
+                
+                /**
+                 * Fecha modal de detalhes
+                 */
+                fecharDetalhes() {
+                    this.operadoraSelecionada = null;
+                },
+                
+                /**
+                 * Formata valor como moeda brasileira
+                 */
+                formatarMoeda(valor) {
+                    return new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                    }).format(valor);
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
