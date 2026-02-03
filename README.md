@@ -17,7 +17,7 @@
 - 🔄 Arquitetura de sistemas complexos
 
 **Minha abordagem:**
-Usei a IA para acelerar o processo, mas estudei cada linha que ela gerou, entendi a lógica e compilei e testei boa parte do codigo alterando algumas coisas.
+Usei a IA para acelerar o processo, mas estudei cada linha que ela gerou, entendi a lógica e compilei e testei boa parte do codigo alterando algumas coisas, mesmo com conhecimentos basico usei esse teste como um exemplo para aprender mais.
 
 ---
 ## 📁 ESTRUTURA DO PROJETO
