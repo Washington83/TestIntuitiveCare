@@ -17,7 +17,7 @@
 - 🔄 Arquitetura de sistemas complexos
 
 **Minha abordagem:**
-Bem boa parte deste **"TESTE"** usei IA para resolver, como meu nível de conhecimento e baixo usei como aprendizado e vi que tenho muito conteúdo a estudar e praticar, analisei e compilei boa parte do código para entender.
+Usei a IA para acelerar o processo, mas estudei cada linha que ela gerou, entendi a lógica e compilei e testei boa parte do codigo alterando algumas coisas.
 
 ---
 ## 📁 ESTRUTURA DO PROJETO
